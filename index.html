@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Foodsies — Quick Nutrition Reference</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Foodsies</h1>
+      <nav class="tabs">
+        <a href="#ingredients" id="tab-ingredients">Ingredients</a>
+        <a href="#meals" id="tab-meals">Meals</a>
+        <a href="#days" id="tab-days">Days</a>
+        <a href="#settings" id="tab-settings" title="Backup / Restore">Settings</a>
+        <button id="btn-toggle-theme" class="ghost" title="Toggle theme">🌙</button>
+      </nav>
+    </header>
+
+    <main id="app">
+      <section id="view-ingredients" class="view hidden" aria-label="Ingredients">
+        <div class="toolbar">
+          <input id="ingredient-search" type="search" placeholder="Search ingredients..." />
+          <button id="btn-add-ingredient" class="primary">Add Ingredient</button>
+        </div>
+
+        <div id="ingredient-list" class="card-list"></div>
+
+        <dialog id="ingredient-dialog">
+          <form method="dialog" id="ingredient-form" class="dialog-form">
+            <header>
+              <h3 id="ingredient-dialog-title">Add Ingredient</h3>
+            </header>
+            <div class="grid">
+              <label>
+                <span>Name</span>
+                <input id="ing-name" required placeholder="e.g., Oats" />
+              </label>
+              <label>
+                <span>Brand (optional)</span>
+                <input id="ing-brand" placeholder="e.g., Lidl" />
+              </label>
+              <label>
+                <span>Calories per 100g</span>
+                <input id="ing-kcal100" type="number" step="0.1" min="0" required />
+              </label>
+              <label>
+                <span>Protein per 100g (g)</span>
+                <input id="ing-protein100" type="number" step="0.1" min="0" required />
+              </label>
+              <label>
+                <span>Price per kg</span>
+                <input id="ing-price-kg" type="number" step="0.01" min="0" placeholder="e.g., 3.49" />
+              </label>
+              <div class="fullrow smallmuted">Optional portion (e.g., cookie, piece)</div>
+              <label>
+                <span>Portion name</span>
+                <input id="ing-portion-name" placeholder="e.g., cookie" />
+              </label>
+              <label>
+                <span>Portion grams</span>
+                <input id="ing-portion-grams" type="number" step="0.1" min="0" placeholder="e.g., 8" />
+              </label>
+              <label class="fullrow">
+                <span>Notes (optional)</span>
+                <textarea id="ing-notes" rows="2" placeholder="Any extra info..."></textarea>
+              </label>
+            </div>
+            <footer class="dialog-actions">
+              <button value="cancel" id="btn-cancel-ing">Cancel</button>
+              <button value="default" class="primary" id="btn-save-ing">Save</button>
+            </footer>
+          </form>
+        </dialog>
+      </section>
+
+      <section id="view-meals" class="view hidden" aria-label="Meals">
+        <div class="toolbar">
+          <input id="meal-name" placeholder="Meal name (e.g., Breakfast)" />
+          <button id="btn-new-meal" class="secondary">New</button>
+          <button id="btn-save-meal" class="primary">Save Meal</button>
+        </div>
+
+        <div class="meal-composer">
+          <div class="meal-items" id="meal-items"></div>
+          <button id="btn-add-meal-item" class="secondary">Add Item</button>
+
+          <div class="totals">
+            <div><strong>Total Calories:</strong> <span id="total-kcal">0</span> kcal</div>
+            <div><strong>Total Protein:</strong> <span id="total-protein">0</span> g</div>
+            <div><strong>Total Cost:</strong> <span id="total-cost">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="existing-meals">
+          <h3>Your Meals</h3>
+          <div id="meal-list" class="card-list"></div>
+        </div>
+      </section>
+
+      <section id="view-days" class="view hidden" aria-label="Days">
+        <div class="toolbar">
+          <input id="day-name" placeholder="Day name (e.g., High Protein)" />
+          <button id="btn-new-day" class="secondary">New</button>
+          <button id="btn-save-day" class="primary">Save Day</button>
+        </div>
+        <div class="meal-composer">
+          <div class="meal-items" id="day-items"></div>
+          <button id="btn-add-day-item" class="secondary">Add Meal</button>
+          <div class="totals">
+            <div><strong>Total Calories:</strong> <span id="day-total-kcal">0</span> kcal</div>
+            <div><strong>Total Protein:</strong> <span id="day-total-protein">0</span> g</div>
+            <div><strong>Total Cost:</strong> <span id="day-total-cost">0.00</span></div>
+          </div>
+          <div class="totals smallmuted">
+            <div>Goal: <span id="goal-kcal">—</span> kcal • <span id="goal-protein">—</span> g protein</div>
+            <div>Delta: <span id="delta-kcal" class="delta">0</span> kcal • <span id="delta-protein" class="delta">0</span> g</div>
+          </div>
+        </div>
+        <div class="existing-meals">
+          <h3>Your Days</h3>
+          <div id="day-list" class="card-list"></div>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view hidden" aria-label="Settings">
+        <div class="settings">
+          <h3>Daily Goals</h3>
+          <div class="row">
+            <label>Calories: <input id="goal-kcal-input" type="number" step="1" min="0" placeholder="e.g., 2200" style="width:120px"></label>
+            <label>Protein (g): <input id="goal-protein-input" type="number" step="1" min="0" placeholder="e.g., 150" style="width:120px"></label>
+            <button id="btn-save-goals" class="primary">Save Goals</button>
+          </div>
+          <h3>Backup & Restore</h3>
+          <div class="row">
+            <button id="btn-export" class="secondary">Export JSON</button>
+            <input type="file" id="input-import" accept="application/json" hidden />
+            <button id="btn-import" class="secondary">Import JSON</button>
+          </div>
+          <div class="row">
+            <button id="btn-demo" class="ghost">Load Demo Data</button>
+            <button id="btn-reset" class="danger">Reset All Data</button>
+          </div>
+          <p class="smallmuted">Data is stored locally in your browser using localStorage. Export regularly to keep a backup.</p>
+        </div>
+      </section>
+    </main>
+
+    <template id="tpl-ingredient-card">
+      <div class="card ingredient-card">
+        <div class="card-main">
+          <div class="title"></div>
+          <div class="subtitle"></div>
+          <div class="stats"></div>
+        </div>
+        <div class="card-actions">
+          <button class="ghost btn-edit">Edit</button>
+          <button class="danger btn-delete">Delete</button>
+        </div>
+      </div>
+    </template>
+
+    <template id="tpl-meal-item">
+      <div class="meal-item">
+        <select class="mi-ingredient"></select>
+        <select class="mi-mode">
+          <option value="grams">grams</option>
+          <option value="portion">portion(s)</option>
+        </select>
+        <input class="mi-amount" type="number" min="0" step="0.1" placeholder="Amount" />
+        <div class="mi-stats">0 kcal • 0 g protein</div>
+        <button class="ghost mi-remove" title="Remove">✕</button>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
